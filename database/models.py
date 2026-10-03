@@ -1,0 +1,31 @@
+from backend.app.models.models import (
+    Project,
+    Script,
+    Scene,
+    Asset,
+    Video,
+    QAResult,
+    Publication,
+    ProjectStatus,
+    SceneStatus,
+    AssetType,
+    VideoStatus,
+    QASimpleStatus,
+    PublicationStatus,
+)
+
+__all__ = [
+    "Project",
+    "Script",
+    "Scene",
+    "Asset",
+    "Video",
+    "QAResult",
+    "Publication",
+    "ProjectStatus",
+    "SceneStatus",
+    "AssetType",
+    "VideoStatus",
+    "QASimpleStatus",
+    "PublicationStatus",
+]
