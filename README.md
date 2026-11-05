@@ -1,6 +1,12 @@
 # Qoneqt AI Content Factory 🚀
 
-An automated, end-to-end content production pipeline that generates short-form videos from raw topic inputs and publishes them directly to the **Qoneqt** platform.
+> **Hackbriven National-Level Hackathon (Ahmedabad) Project • Team Leader: Prachi Zala**  
+> An automated, end-to-end content production pipeline that generates short-form videos from raw topic inputs and publishes them directly to the **Qoneqt** platform.
+
+[![Hackbriven Hackathon](https://img.shields.io/badge/Hackathon-Hackbriven_Ahmedabad-orange?style=flat-square)](https://github.com/prachizala)
+[![Role](https://img.shields.io/badge/Role-Team_Leader-brightgreen?style=flat-square)](https://github.com/prachizala)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com/)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 
 ---
 
