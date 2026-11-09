@@ -7,6 +7,8 @@
 [![Role](https://img.shields.io/badge/Role-Team_Leader-brightgreen?style=flat-square)](https://github.com/prachizala)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg)](https://fastapi.tiangolo.com/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
@@ -37,6 +39,47 @@ qoneqt-ai-content-factory/
 - **Video Assembly Engine:** FFmpeg CLI with custom audio mixer and subtitle burner.
 - **AI Integrations:** OpenAI GPT-4 / Google Gemini API, Text-to-Speech (TTS), Image Generation.
 - **Publishing Client:** Native Qoneqt REST API publisher integration.
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client ["🖥️ Presentation Layer"]
+        UI["Next.js 14 Dashboard<br/>(Tailwind CSS + TypeScript)"]
+    end
+
+    subgraph API ["⚙️ API & Orchestration Layer"]
+        FastAPI["FastAPI Gateway<br/>(Python 3.11, Pydantic v2)"]
+        Redis["Redis Message Broker<br/>(Queue & Caching)"]
+        Celery["Celery Distributed Workers<br/>(Async Task Engine)"]
+    end
+
+    subgraph Intelligence ["🧠 Multi-Agent AI Engine"]
+        ScriptAgent["Research & Scriptwriter Agent<br/>(LLM / GPT-4 / Gemini)"]
+        DirectorAgent["Scene Director & Visual Planner"]
+        TTS["TTS Audio Engine<br/>(Voice Narration)"]
+    end
+
+    subgraph Media ["🎬 Video Production & Storage"]
+        FFmpeg["FFmpeg Video Assembly<br/>(Dynamic Cuts & Subtitle Burn)"]
+        Postgres[("PostgreSQL 15<br/>(SQLAlchemy AsyncPG)")]
+        QoneqtAPI["Qoneqt Platform<br/>(Automated Publisher API)"]
+    end
+
+    UI -->|1. Submit Topic Input| FastAPI
+    FastAPI -->|2. Enqueue Generation Job| Redis
+    Redis --> Celery
+    Celery -->|3. Generate Script| ScriptAgent
+    ScriptAgent --> DirectorAgent
+    DirectorAgent -->|4. Synthesize Narration| TTS
+    TTS -->|5. Assemble Final Video| FFmpeg
+    Celery -->|Persist Metadata| Postgres
+    FFmpeg -->|6. Auto-Publish Content| QoneqtAPI
+```
+
+> 📊 **Hackathon Presentation Deck:** Open [`PPT.html`](PPT.html) directly in any browser to review the complete slide deck prepared for the Hackbriven hackathon evaluation committee.
 
 ---
 
