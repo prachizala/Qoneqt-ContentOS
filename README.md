@@ -9,6 +9,8 @@
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 [![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED.svg)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Retention AI](https://img.shields.io/badge/AI-Viral_Retention_Auditor-purple.svg)](ai/agents/retention_auditor.py)
+[![A/B Hooks](https://img.shields.io/badge/Optimization-1--Click_Hook_Swap-amber.svg)](frontend/app/projects/%5Bid%5D/page.tsx)
 
 ---
 
@@ -58,6 +60,7 @@ flowchart TD
 
     subgraph Intelligence ["🧠 Multi-Agent AI Engine"]
         ScriptAgent["Research & Scriptwriter Agent<br/>(LLM / GPT-4 / Gemini)"]
+        AuditorAgent["Viral Retention Auditor & Hook Optimizer<br/>(0-100 Score & Decay Curves)"]
         DirectorAgent["Scene Director & Visual Planner"]
         TTS["TTS Audio Engine<br/>(Voice Narration)"]
     end
@@ -72,7 +75,8 @@ flowchart TD
     FastAPI -->|2. Enqueue Generation Job| Redis
     Redis --> Celery
     Celery -->|3. Generate Script| ScriptAgent
-    ScriptAgent --> DirectorAgent
+    ScriptAgent -->|Pre-Render Audit| AuditorAgent
+    AuditorAgent -->|Optimize Hooks| DirectorAgent
     DirectorAgent -->|4. Synthesize Narration| TTS
     TTS -->|5. Assemble Final Video| FFmpeg
     Celery -->|Persist Metadata| Postgres
@@ -80,6 +84,27 @@ flowchart TD
 ```
 
 > 📊 **Hackathon Presentation Deck:** Open [`PPT.html`](PPT.html) directly in any browser to review the complete slide deck prepared for the Hackbriven hackathon evaluation committee.
+
+---
+
+
+---
+
+## 🎯 Viral Retention Auditor & 1-Click Hook Optimizer
+
+A specialized AI engine engineered to maximize TikTok, Instagram Reels, and YouTube Shorts algorithmic retention:
+
+- **Composite Retention Score (0–100):** Evaluates script potential across 4 analytical dimensions:
+  - **Hook Power (0–30):** Detects 0-3s pattern interrupts, sensory keywords, and curiosity gaps.
+  - **Pacing Cadence (0–30):** Computes precise Words-Per-Minute (WPM) speech velocity and scene switch intervals to prevent viewer boredom.
+  - **Virality Index (0–20):** Evaluates loss-aversion triggers, contrarian perspectives, and emotional charge.
+  - **CTA Conversion (0–20):** Scores frictionless comment-bait and follow prompts.
+- **Scene-by-Scene Retention Decay Curves:** Visual simulation predicting where viewers are at highest risk of swiping away.
+- **1-Click Viral Hook Swapper:** Generates 3 specialized viral hook variants (*Negative Curiosity Gap*, *Shocking Counter-Intuitive*, *Urgent Loss Aversion*) and seamlessly swaps Scene 1 narration in the database and studio canvas with one click.
+- **Dedicated Endpoints:**
+  - `GET /api/projects/{id}/retention-audit`: Full audit report and drop-off simulation.
+  - `POST /api/projects/{id}/apply-optimized-hook`: Instant 1-click hook application.
+  - `POST /api/projects/retention/quick-audit`: On-the-fly script evaluation for creators.
 
 ---
 

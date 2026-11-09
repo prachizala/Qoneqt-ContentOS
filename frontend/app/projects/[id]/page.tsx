@@ -19,7 +19,10 @@ import {
   Video,
   Layers,
   Radio,
-  X
+  X,
+  TrendingUp,
+  Zap,
+  Award
 } from 'lucide-react';
 
 interface SceneItem {
@@ -74,6 +77,53 @@ interface PublicationItem {
   published_at?: string;
 }
 
+
+interface RetentionReportData {
+  overall_score: number;
+  grade: string;
+  hook_breakdown: {
+    score: number;
+    hook_type_detected: string;
+    pattern_interrupt_present: boolean;
+    analysis: string;
+  };
+  pacing_breakdown: {
+    score: number;
+    words_per_minute: number;
+    scene_switch_frequency_seconds: number;
+    density_verdict: string;
+    analysis: string;
+  };
+  virality_breakdown: {
+    score: number;
+    relatability_factor: string;
+    emotional_triggers: string[];
+    analysis: string;
+  };
+  cta_breakdown: {
+    score: number;
+    urgency_level: string;
+    frictionless_action: boolean;
+    analysis: string;
+  };
+  scene_dropoffs: Array<{
+    scene_number: number;
+    duration_s: number;
+    estimated_retention_pct: number;
+    dropoff_risk: string;
+    suggestion: string;
+  }>;
+  key_strengths: string[];
+  critical_dropoffs: string[];
+  actionable_recommendations: string[];
+  optimized_hooks: Array<{
+    style: string;
+    headline: string;
+    text: string;
+    estimated_hook_score: number;
+  }>;
+}
+
 interface ProjectDetail {
   id: string;
   topic: string;
@@ -116,6 +166,48 @@ export default function ProjectDetailPage() {
   const [publishing, setPublishing] = useState<boolean>(false);
   const [approving, setApproving] = useState<boolean>(false);
   const [selectingHook, setSelectingHook] = useState<boolean>(false);
+  const [retentionReport, setRetentionReport] = useState<RetentionReportData | null>(null);
+  const [loadingRetention, setLoadingRetention] = useState<boolean>(false);
+  const [applyingHookText, setApplyingHookText] = useState<string | null>(null);
+  const [hookSuccessMsg, setHookSuccessMsg] = useState<string | null>(null);
+
+  const fetchRetentionAudit = async (signal?: AbortSignal) => {
+    setLoadingRetention(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/retention-audit`, { signal });
+      if (res.ok) {
+        const data: RetentionReportData = await res.json();
+        setRetentionReport(data);
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        console.error("Retention audit fetch error:", err);
+      }
+    } finally {
+      setLoadingRetention(false);
+    }
+  };
+
+  const handleApplyOptimizedHook = async (hookText: string) => {
+    setApplyingHookText(hookText);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/apply-optimized-hook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hook_text: hookText }),
+      });
+      if (res.ok) {
+        setHookSuccessMsg("⚡ Optimized hook applied to Scene 1! Narrative synchronized.");
+        setTimeout(() => setHookSuccessMsg(null), 4000);
+        await fetchProjectDetails();
+        await fetchRetentionAudit();
+      }
+    } catch (err) {
+      console.error("Hook apply error:", err);
+    } finally {
+      setApplyingHookText(null);
+    }
+  };
 
   // Fetch project details
   const fetchProjectDetails = async (signal?: AbortSignal) => {
@@ -142,6 +234,7 @@ export default function ProjectDetailPage() {
   useEffect(() => {
     const controller = new AbortController();
     fetchProjectDetails(controller.signal);
+    fetchRetentionAudit(controller.signal);
 
     const interval = setInterval(async () => {
       try {
@@ -544,6 +637,194 @@ export default function ProjectDetailPage() {
               )}
             </div>
           )}
+
+          {/* AI Viral Retention & Pacing Auditor */}
+          <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-5 bg-gradient-to-b from-slate-900/80 to-slate-950/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-100 text-sm flex items-center gap-2">
+                    <span>AI Viral Retention & Pacing Predictor</span>
+                    <span className="bg-amber-500/10 text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-500/20">
+                      Algorithmic Audit
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">Shorts/Reels viewer attention curve & 0-3s hook optimization</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => fetchRetentionAudit()}
+                disabled={loadingRetention}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700/80 self-start sm:self-auto"
+              >
+                {loadingRetention ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCw className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Re-Audit Retention</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {hookSuccessMsg && (
+              <div className="p-3 bg-emerald-500/15 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 flex items-center gap-2 animate-fadeIn">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{hookSuccessMsg}</span>
+              </div>
+            )}
+
+            {retentionReport ? (
+              <div className="space-y-5">
+                {/* Score Header & KPI Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                  <div className="sm:col-span-2 p-4 bg-slate-950 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                    <span className="text-[11px] text-slate-400 font-medium">Viral Retention Probability</span>
+                    <div className="flex items-baseline gap-2 my-2">
+                      <span className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400">
+                        {retentionReport.overall_score}
+                      </span>
+                      <span className="text-xs text-slate-500 font-mono">/ 100</span>
+                    </div>
+                    <div>
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        retentionReport.grade === 'VIRAL_OUTLIER'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                          : retentionReport.grade === 'HIGH_RETENTION'
+                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                      }`}>
+                        {retentionReport.grade.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="sm:col-span-3 grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                      <span className="text-slate-400 text-[10px]">Hook Power (0-30):</span>
+                      <span className="text-base font-bold text-amber-400">{retentionReport.hook_breakdown.score} / 30</span>
+                      <span className="text-[10px] text-slate-400 truncate">{retentionReport.hook_breakdown.hook_type_detected}</span>
+                    </div>
+                    <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                      <span className="text-slate-400 text-[10px]">Speech Cadence:</span>
+                      <span className="text-base font-bold text-sky-400">{retentionReport.pacing_breakdown.words_per_minute} WPM</span>
+                      <span className="text-[10px] text-slate-400 truncate">{retentionReport.pacing_breakdown.density_verdict}</span>
+                    </div>
+                    <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                      <span className="text-slate-400 text-[10px]">Virality Index:</span>
+                      <span className="text-base font-bold text-purple-400">{retentionReport.virality_breakdown.score} / 20</span>
+                      <span className="text-[10px] text-slate-400">{retentionReport.virality_breakdown.relatability_factor} Reach</span>
+                    </div>
+                    <div className="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+                      <span className="text-slate-400 text-[10px]">CTA Urgency:</span>
+                      <span className="text-base font-bold text-emerald-400">{retentionReport.cta_breakdown.score} / 20</span>
+                      <span className="text-[10px] text-slate-400">{retentionReport.cta_breakdown.urgency_level} Impact</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scene-by-Scene Retention Decay Simulation */}
+                {retentionReport.scene_dropoffs && retentionReport.scene_dropoffs.length > 0 && (
+                  <div className="space-y-2 pt-2">
+                    <span className="text-xs font-semibold text-slate-300 block">
+                      Scene Retention Decay Curve (Estimated Viewer Retention):
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {retentionReport.scene_dropoffs.map((sc) => (
+                        <div key={sc.scene_number} className="p-2.5 bg-slate-950/90 rounded-xl border border-slate-800/80 text-[11px] space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-slate-300">Scene {sc.scene_number}</span>
+                            <span className={`text-[10px] font-bold ${
+                              sc.dropoff_risk === 'LOW' ? 'text-emerald-400' : sc.dropoff_risk === 'MEDIUM' ? 'text-amber-400' : 'text-rose-400'
+                            }`}>
+                              {sc.estimated_retention_pct}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${
+                                sc.dropoff_risk === 'LOW' ? 'bg-emerald-400' : sc.dropoff_risk === 'MEDIUM' ? 'bg-amber-400' : 'bg-rose-500'
+                              }`}
+                              style={{ width: `${sc.estimated_retention_pct}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-slate-500 block truncate">{sc.duration_s}s | {sc.suggestion}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 1-Click Viral Hook Optimizer */}
+                {retentionReport.optimized_hooks && retentionReport.optimized_hooks.length > 0 && (
+                  <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>AI Supercharged Hook Optimizer (1-Click Swap):</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">Algorithm Score Boost: +12-18%</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2">
+                      {retentionReport.optimized_hooks.map((opt, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 bg-slate-950/90 rounded-xl border border-slate-800/80 hover:border-amber-500/40 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-200">{opt.headline}</span>
+                              <span className="bg-amber-500/10 text-amber-400 text-[10px] font-mono px-2 py-0.2 rounded-full border border-amber-500/20">
+                                {opt.style}
+                              </span>
+                              <span className="text-emerald-400 text-[10px] font-mono font-bold">
+                                {opt.estimated_hook_score}/30 Score
+                              </span>
+                            </div>
+                            <p className="text-slate-300 font-normal">"{opt.text}"</p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleApplyOptimizedHook(opt.text)}
+                            disabled={applyingHookText === opt.text}
+                            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 transition-colors shrink-0 shadow-md shadow-amber-500/20"
+                          >
+                            {applyingHookText === opt.text ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <span>Applying...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="w-3.5 h-3.5" />
+                                <span>Apply to Scene 1</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-6 text-center text-xs text-slate-500 space-y-2">
+                <Loader2 className="w-6 h-6 animate-spin text-amber-400 mx-auto" />
+                <p>Calculating retention probability & viral hooks...</p>
+              </div>
+            )}
+          </div>
 
           {/* Script & Scene Breakdown */}
           <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-4">

@@ -1,3 +1,5 @@
+import re
+from ai.agents.retention_auditor import RetentionAuditor
 import os
 import uuid
 import logging
@@ -476,3 +478,139 @@ async def export_project_formats(
         logger.error(f"[MultiFormatExporter] Export failed for Project {project_id}: {exc}")
         raise HTTPException(status_code=500, detail=f"Export failed: {exc}")
 
+
+
+# ==============================================================================
+# RETENTION AUDITOR & VIRAL HOOK OPTIMIZATION ENDPOINTS
+# ==============================================================================
+
+@router.get("/{project_id}/retention-audit")
+async def get_project_retention_audit(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Audits the project's current script and scene structure for short-form video retention,
+    calculates viral retention probability score (0-100), scene drop-off curves,
+    and returns 3 optimized viral hook variations.
+    """
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.script), selectinload(Project.scenes))
+        .where(Project.id == project_id)
+    )
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    scenes_data = []
+    if project.scenes:
+        sorted_scenes = sorted(project.scenes, key=lambda s: s.scene_number)
+        for s in sorted_scenes:
+            scenes_data.append({
+                "scene_number": s.scene_number,
+                "narration": s.narration,
+                "duration": float(s.duration) if s.duration else 3.5,
+                "caption": getattr(s, "caption", None) or s.narration
+            })
+    elif project.script and project.script.body:
+        paragraphs = [p.strip() for p in project.script.body.split("\n\n") if p.strip()]
+        for idx, p in enumerate(paragraphs):
+            scenes_data.append({
+                "scene_number": idx + 1,
+                "narration": p,
+                "duration": 4.0,
+                "caption": p
+            })
+
+    auditor = RetentionAuditor()
+    report = await auditor.audit_script(
+        title=project.topic,
+        scenes=scenes_data,
+        target_duration=float(project.duration) if project.duration else 30.0,
+        topic=project.topic
+    )
+    return report.model_dump()
+
+
+@router.post("/{project_id}/apply-optimized-hook")
+async def apply_optimized_hook(
+    project_id: uuid.UUID,
+    payload: Dict[str, str],
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Applies one of the AI-optimized viral hook variations directly to Scene 1
+    and updates the project's script record.
+    """
+    hook_text = (payload.get("hook_text") or "").strip()
+    if not hook_text:
+        raise HTTPException(status_code=400, detail="hook_text is required.")
+
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.script), selectinload(Project.scenes))
+        .where(Project.id == project_id)
+    )
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if project.script:
+        project.script.hook = hook_text
+
+    if project.scenes:
+        first_scene = next((s for s in project.scenes if s.scene_number == 1), None)
+        if first_scene:
+            first_scene.narration = hook_text
+            if hasattr(first_scene, "caption"):
+                first_scene.caption = hook_text
+
+    await db.commit()
+    return {
+        "status": "SUCCESS",
+        "project_id": str(project_id),
+        "applied_hook": hook_text,
+        "message": "Optimized viral hook successfully applied to Scene 1."
+    }
+
+
+@router.post("/retention/quick-audit")
+async def quick_retention_audit(payload: Dict[str, Any]):
+    """
+    Instant retention scoring for creators drafting scripts on the fly.
+    Accepts topic, script narration text, and optional target duration.
+    """
+    topic = payload.get("topic") or "General"
+    narration_text = (payload.get("narration") or payload.get("script") or "").strip()
+    target_duration = float(payload.get("duration") or 30.0)
+
+    if not narration_text:
+        raise HTTPException(status_code=400, detail="narration text is required.")
+
+    sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", narration_text) if s.strip()]
+    if not sentences:
+        sentences = [narration_text]
+
+    scenes_data = []
+    chunk_dur = max(2.5, round(target_duration / len(sentences), 1))
+    for idx, sentence in enumerate(sentences):
+        scenes_data.append({
+            "scene_number": idx + 1,
+            "narration": sentence,
+            "duration": chunk_dur,
+            "caption": sentence
+        })
+
+    auditor = RetentionAuditor()
+    report = await auditor.audit_script(
+        title=topic,
+        scenes=scenes_data,
+        target_duration=target_duration,
+        topic=topic
+    )
+    return report.model_dump()
