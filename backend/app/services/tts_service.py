@@ -7,7 +7,10 @@ import subprocess
 import httpx
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
-from mutagen.mp3 import MP3
+try:
+    from mutagen.mp3 import MP3
+except ImportError:
+    MP3 = None
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +39,13 @@ def get_audio_file_duration(file_path: str) -> float:
         pass
 
     # 2. Mutagen MP3 header inspection
-    try:
-        audio = MP3(file_path)
-        if audio.info and audio.info.length and audio.info.length > 0:
-            return round(float(audio.info.length), 3)
-    except Exception:
-        pass
+    if MP3 is not None:
+        try:
+            audio = MP3(file_path)
+            if audio.info and audio.info.length and audio.info.length > 0:
+                return round(float(audio.info.length), 3)
+        except Exception:
+            pass
 
     # 3. File size fallback
     file_size = os.path.getsize(file_path)

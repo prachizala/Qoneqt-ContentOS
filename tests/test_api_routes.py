@@ -6,7 +6,13 @@ from backend.main import app
 
 # Create in-memory SQLite engine for local API route testing
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+from sqlalchemy.pool import StaticPool
+test_engine = create_async_engine(
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+    echo=False
+)
 from backend.app.models.models import Project, Script, Scene, Asset, Video, QAResult, Publication  # noqa: F401
 TestingSessionLocal = async_sessionmaker(bind=test_engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -106,9 +112,12 @@ def test_subscription_webhook():
     assert data["status"] == "success"
     assert data["processed"] is True
 
+from unittest.mock import patch
+
 def test_generate_pipeline_endpoint():
-    response = client.post(
-        "/api/generate-pipeline",
+    with patch("backend.app.routers.projects.run_pipeline") as mock_run:
+        response = client.post(
+            "/api/generate-pipeline",
         json={
             "topic": "Future of Autonomous AI Robotics 2026",
             "audience": "general",
