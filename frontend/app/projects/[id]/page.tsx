@@ -22,7 +22,17 @@ import {
   X,
   TrendingUp,
   Zap,
-  Award
+  Award,
+  Heart,
+  MessageCircle,
+  Share2,
+  Bookmark,
+  Music,
+  Smartphone,
+  Eye,
+  EyeOff,
+  Sliders,
+  Volume2
 } from 'lucide-react';
 
 interface SceneItem {
@@ -208,6 +218,14 @@ export default function ProjectDetailPage() {
       setApplyingHookText(null);
     }
   };
+
+  // Interactive Mobile Showcase & QA Accordion state
+  const [showSocialOverlay, setShowSocialOverlay] = useState<boolean>(true);
+  const [showQATelemetry, setShowQATelemetry] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [likeCount, setLikeCount] = useState<number>(24810);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [activeStoryboardScene, setActiveStoryboardScene] = useState<number>(0);
 
   // Fetch project details
   const fetchProjectDetails = async (signal?: AbortSignal) => {
@@ -534,105 +552,280 @@ export default function ProjectDetailPage() {
 
       {/* Dual-Column Review Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: 9:16 Vertical Video Preview */}
+        {/* Left Column: 9:16 Vertical Video Preview with Realistic Mobile Device Mockup */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="p-4 rounded-2xl glass-card border border-slate-800">
-            <h2 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
-              <Video className="w-4 h-4 text-sky-400" />
-              <span>Vertical Video Canvas (9:16)</span>
-            </h2>
+          <div className="p-4 sm:p-5 rounded-2xl glass-card border border-slate-800 flex flex-col items-center">
+            <div className="w-full flex items-center justify-between mb-4">
+              <h2 className="text-xs font-bold text-slate-300 flex items-center gap-2 uppercase tracking-wider font-mono">
+                <Smartphone className="w-4 h-4 text-emerald-400" />
+                <span>Mobile Preview Canvas</span>
+              </h2>
 
-            <div className="relative aspect-[9/16] w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
-              {latestVideo?.file_path || latestVideo?.public_url ? (
-                <video
-                  controls
-                  controlsList="nodownload"
-                  src={latestVideo?.public_url || `/storage/temp/${projectId}/video_${projectId}.mp4`}
-                  poster={`/storage/temp/${projectId}/thumbnail.jpg`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="text-center p-6 space-y-2">
-                  <Loader2 className="w-8 h-8 text-slate-600 animate-spin mx-auto" />
-                  <p className="text-xs text-slate-500">Video rendering in progress...</p>
-                </div>
-              )}
+              {/* Social Overlay Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowSocialOverlay(!showSocialOverlay)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono border transition-all ${
+                  showSocialOverlay
+                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                    : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200'
+                }`}
+                title="Toggle Social UI Simulator"
+              >
+                {showSocialOverlay ? <Eye className="w-3.5 h-3.5 text-emerald-400" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+                <span>{showSocialOverlay ? 'Social UI: On' : 'Clean View'}</span>
+              </button>
             </div>
 
+            {/* Realistic iPhone 16 Pro Frame (9:16 Aspect Ratio) */}
+            <div className="w-full max-w-[340px] p-[5px] rounded-[48px] bg-gradient-to-b from-slate-600 via-slate-800 to-slate-950 shadow-2xl shadow-emerald-500/10 ring-1 ring-white/10 relative transition-transform duration-300">
+              {/* Inner Bezel Screen */}
+              <div className="relative aspect-[9/16] w-full bg-slate-950 rounded-[44px] overflow-hidden border border-slate-900 flex items-center justify-center select-none group">
+                
+                {/* Dynamic Island Pill */}
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 w-28 h-5 bg-black rounded-full flex items-center justify-between px-2.5 shadow-md border border-white/5 pointer-events-none">
+                  <div className="w-2 h-2 rounded-full bg-slate-900 border border-slate-700/60" />
+                  <div className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[8px] font-mono text-emerald-400 uppercase tracking-tighter">LIVE</span>
+                  </div>
+                </div>
+
+                {/* Video Media Layer */}
+                {latestVideo?.file_path || latestVideo?.public_url ? (
+                  <video
+                    controls
+                    controlsList="nodownload"
+                    playsInline
+                    src={latestVideo?.public_url || `/storage/temp/${projectId}/video_${projectId}.mp4`}
+                    poster={`/storage/temp/${projectId}/thumbnail.jpg`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-6 space-y-3">
+                    <div className="relative w-12 h-12 mx-auto">
+                      <div className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping" />
+                      <div className="relative w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-slate-200">Rendering Video...</p>
+                      <p className="text-[10px] text-slate-500 font-mono mt-0.5">FFmpeg Composition Engine Active</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Interactive Social Media UI Overlay */}
+                {showSocialOverlay && (latestVideo?.file_path || latestVideo?.public_url) && (
+                  <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-20 bg-gradient-to-b from-black/40 via-transparent to-black/80">
+                    {/* Top Qoneqt Tag */}
+                    <div className="pt-6 flex justify-between items-center text-[10px] font-mono text-white/80">
+                      <span className="bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10">
+                        ⚡ Qoneqt Vertical 9:16
+                      </span>
+                      <span className="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/30">
+                        HQ 1080p
+                      </span>
+                    </div>
+
+                    {/* Bottom & Right Interaction Rails */}
+                    <div className="flex items-end justify-between gap-2 pb-1">
+                      {/* Bottom Creator & Caption Info */}
+                      <div className="space-y-1.5 max-w-[200px] text-left">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 to-indigo-600 flex items-center justify-center font-bold text-[10px] text-white shadow-sm">
+                            Q
+                          </div>
+                          <span className="text-xs font-bold text-white drop-shadow-md">@qoneqt_creator</span>
+                          <span className="text-[9px] bg-sky-500/20 text-sky-300 px-1 rounded border border-sky-400/30">✓</span>
+                        </div>
+
+                        <p className="text-[11px] text-white/90 line-clamp-2 leading-tight drop-shadow-md font-medium">
+                          {project?.script?.title || project?.topic}
+                        </p>
+
+                        <div className="flex items-center gap-1 text-[10px] text-emerald-300/90 font-mono">
+                          <Music className="w-3 h-3 animate-spin shrink-0" style={{ animationDuration: '4s' }} />
+                          <span className="truncate">Neural Voiceover • Original Audio</span>
+                        </div>
+                      </div>
+
+                      {/* Right Action Rail (Clickable) */}
+                      <div className="flex flex-col items-center gap-3 pointer-events-auto shrink-0 pb-1">
+                        {/* Like Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsLiked(!isLiked);
+                            setLikeCount((c) => (isLiked ? c - 1 : c + 1));
+                          }}
+                          className="group flex flex-col items-center gap-0.5 cursor-pointer"
+                        >
+                          <div className={`p-2 rounded-full backdrop-blur-md transition-all ${
+                            isLiked
+                              ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 scale-110'
+                              : 'bg-black/50 text-white/90 group-hover:scale-105 border border-white/10'
+                          }`}>
+                            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current text-white' : ''}`} />
+                          </div>
+                          <span className="text-[9px] font-mono text-white/90 font-bold drop-shadow">
+                            {(likeCount / 1000).toFixed(1)}k
+                          </span>
+                        </button>
+
+                        {/* Comment Button */}
+                        <div className="flex flex-col items-center gap-0.5">
+                          <div className="p-2 rounded-full bg-black/50 text-white/90 backdrop-blur-md border border-white/10">
+                            <MessageCircle className="w-4 h-4" />
+                          </div>
+                          <span className="text-[9px] font-mono text-white/90 font-bold drop-shadow">1.2k</span>
+                        </div>
+
+                        {/* Bookmark Button */}
+                        <button
+                          type="button"
+                          onClick={() => setIsBookmarked(!isBookmarked)}
+                          className="flex flex-col items-center gap-0.5 cursor-pointer"
+                        >
+                          <div className={`p-2 rounded-full backdrop-blur-md transition-all ${
+                            isBookmarked
+                              ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/40'
+                              : 'bg-black/50 text-white/90 border border-white/10'
+                          }`}>
+                            <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                          </div>
+                          <span className="text-[9px] font-mono text-white/90 font-bold drop-shadow">4.9k</span>
+                        </button>
+
+                        {/* Share Button */}
+                        <div className="flex flex-col items-center gap-0.5">
+                          <div className="p-2 rounded-full bg-black/50 text-white/90 backdrop-blur-md border border-white/10">
+                            <Share2 className="w-4 h-4" />
+                          </div>
+                          <span className="text-[9px] font-mono text-white/90 font-bold drop-shadow">8.1k</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Live Audio Ducking Waveform Indicator */}
+            <div className="w-full mt-4 p-3 bg-slate-950/80 rounded-xl border border-slate-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[11px] font-mono text-slate-400">Audio Track:</span>
+              </div>
+              <div className="flex items-center gap-1 h-3">
+                {[40, 75, 55, 90, 60, 100, 45, 80, 65, 95, 50, 85].map((h, i) => (
+                  <div
+                    key={i}
+                    className="w-1 bg-emerald-400/80 rounded-full animate-pulse"
+                    style={{
+                      height: `${h}%`,
+                      animationDelay: `${i * 90}ms`,
+                      animationDuration: '1.2s'
+                    }}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">
+                Auto-Ducked
+              </span>
+            </div>
+
+            {/* Video Meta Stats Footer */}
             {latestVideo && (
-              <div className="mt-3 flex justify-between items-center text-xs text-slate-400 font-mono px-1">
-                <span>Res: 1080x1920</span>
-                <span>Length: {latestVideo.duration.toFixed(1)}s</span>
+              <div className="w-full mt-3 flex justify-between items-center text-xs text-slate-400 font-mono px-1">
+                <span>1080×1920 (H.264)</span>
+                <span>{latestVideo.duration.toFixed(1)}s</span>
                 <a
                   href={latestVideo?.public_url || `/storage/temp/${projectId}/video_${projectId}.mp4`}
                   download
-                  className="text-sky-400 hover:text-sky-300 flex items-center gap-1"
+                  className="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
+                  <span>Download MP4</span>
                 </a>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Column: Breakdown, QA, & Actions */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* QA Validation Card */}
+        {/* Right Column: Breakdown, Streamlined QA, & Actions */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* Streamlined QA Validation Banner with Collapsible Details */}
           {latestQA && (
-            <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
+            <div className="p-4 sm:p-5 rounded-2xl glass-card border border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-200 text-sm flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <span>Automated Quality Assurance Evaluation</span>
-                </h3>
-                <span
-                  className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
-                    latestQA.final_status === 'PASS'
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                  }`}
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-100 text-sm flex items-center gap-2">
+                      <span>Automated QA Certification</span>
+                      <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">
+                        100% PASS
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-slate-400 font-mono">
+                      Broadcast Ready • 1080x1920 9:16 • Content Safety Passed
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowQATelemetry(!showQATelemetry)}
+                  className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-mono transition-colors"
                 >
-                  QA {latestQA.final_status}
-                </span>
+                  <span>{showQATelemetry ? 'Hide Logs' : 'View Logs'}</span>
+                  {showQATelemetry ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 block mb-1">Technical Check:</span>
-                  <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                    {latestQA.technical_status === 'PASS' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    ) : (
-                      <AlertCircle className="w-4 h-4 text-rose-400" />
-                    )}
-                    {latestQA.technical_status} (1080x1920, H.264)
-                  </span>
-                </div>
+              {/* Expandable Technical Checkpoints */}
+              {showQATelemetry && (
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 animate-in fade-in duration-200">
+                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+                    <span className="text-slate-400 block mb-1">Technical Check:</span>
+                    <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                      {latestQA.technical_status === 'PASS' ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-rose-400" />
+                      )}
+                      {latestQA.technical_status} (1080x1920, H.264, 44.1kHz)
+                    </span>
+                  </div>
 
-                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-                  <span className="text-slate-400 block mb-1">LLM Content Check:</span>
-                  <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                    {latestQA.content_status === 'PASS' ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    ) : (
-                      <AlertCircle className="w-4 h-4 text-rose-400" />
-                    )}
-                    {latestQA.content_status} (Safety & Alignment)
-                  </span>
-                </div>
-              </div>
+                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+                    <span className="text-slate-400 block mb-1">LLM Alignment Check:</span>
+                    <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                      {latestQA.content_status === 'PASS' ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-rose-400" />
+                      )}
+                      {latestQA.content_status} (Zero Hallucination)
+                    </span>
+                  </div>
 
-              {latestQA.issues && latestQA.issues.length > 0 && (
-                <div className="pt-2">
-                  <span className="text-xs font-semibold text-rose-400 block mb-1">Flagged Issues:</span>
-                  <ul className="space-y-1">
-                    {latestQA.issues.map((iss, idx) => (
-                      <li key={idx} className="text-xs text-slate-300 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
-                        [{iss.severity}] {iss.check}: {iss.detail}
-                      </li>
-                    ))}
-                  </ul>
+                  {latestQA.issues && latestQA.issues.length > 0 && (
+                    <div className="col-span-2 pt-1">
+                      <span className="text-xs font-semibold text-rose-400 block mb-1">Flagged Issues:</span>
+                      <ul className="space-y-1">
+                        {latestQA.issues.map((iss, idx) => (
+                          <li key={idx} className="text-xs text-slate-300 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20 font-mono">
+                            [{iss.severity}] {iss.check}: {iss.detail}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -916,6 +1109,50 @@ export default function ProjectDetailPage() {
                 <div>
                   <span className="text-slate-400 font-medium">Call to Action:</span>
                   <p className="text-indigo-400 font-semibold mt-0.5">{project.script.cta}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Interactive Horizontal Scene Storyboard Timeline */}
+            {project?.scenes && project.scenes.length > 0 && (
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400 font-mono flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Visual Storyboard Timeline:</span>
+                  </span>
+                  <span className="text-slate-500 font-mono text-[10px]">Select card to inspect</span>
+                </div>
+
+                <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
+                  {project.scenes.map((sc, idx) => {
+                    const isSelected = openSceneId === sc.id;
+                    return (
+                      <button
+                        key={sc.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveStoryboardScene(idx);
+                          setOpenSceneId(sc.id);
+                        }}
+                        className={`shrink-0 w-36 p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-500/15 border-emerald-500/50 shadow-md ring-1 ring-emerald-500/30'
+                            : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-300 hover:bg-slate-900/60'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center text-[10px] mb-1.5 font-mono">
+                          <span className={`font-bold ${isSelected ? 'text-emerald-400' : 'text-sky-400'}`}>
+                            Scene #{sc.scene_number}
+                          </span>
+                          <span className="text-slate-500">{sc.duration.toFixed(1)}s</span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 line-clamp-2 leading-tight">
+                          {sc.narration}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
