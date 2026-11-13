@@ -164,14 +164,45 @@ h2.sub{font-family:var(--body); font-weight:400; font-size:clamp(13.5px,1.2vw,17
 
 /* live canvas preview */
 .mobile-mock{
-  width:200px; height:355px; background:#000; border-radius:22px; border:3px solid #2B384E;
+  width:220px; height:390px; background:linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  border-radius:32px; border:4px solid #334155;
   margin:0 auto; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; padding:12px;
-  box-shadow:0 18px 40px rgba(0,0,0,.6);
+  box-shadow:0 20px 50px rgba(0,229,255,.15), 0 10px 25px rgba(0,0,0,.9);
 }
-.mobile-mock .badge{font-family:var(--mono); font-size:8px; padding:2px 6px; border-radius:10px; background:rgba(0,0,0,.6); color:var(--cyan); align-self:flex-start;}
-.mobile-mock .overlay{text-align:center; padding-bottom:8px;}
-.mobile-mock .kinetic-text{font-family:var(--disp); font-weight:700; font-size:12px; line-height:1.2; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.9);}
-.mobile-mock .highlight{color:#FFE600;}
+.mobile-mock::before{
+  content:''; position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  width:64px; height:12px; background:#000; border-radius:10px; z-index:20;
+}
+.mobile-mock .mock-bg{
+  position:absolute; inset:0; background:radial-gradient(circle at 50% 35%, rgba(0,229,255,.25), transparent 70%), linear-gradient(180deg, #1e1b4b, #030712);
+  z-index:1; opacity:.9; animation:mockPulse 4s infinite alternate;
+}
+@keyframes mockPulse{ 0%{opacity:.75; transform:scale(1);} 100%{opacity:1; transform:scale(1.05);} }
+.mobile-mock .badge{
+  font-family:var(--mono); font-size:8.5px; padding:3px 8px; border-radius:10px;
+  background:rgba(0,0,0,.65); border:1px solid rgba(0,229,255,.3); color:var(--cyan);
+  align-self:flex-start; margin-top:14px; z-index:5;
+}
+.mobile-mock .social-rail{
+  position:absolute; right:10px; bottom:60px; z-index:10;
+  display:flex; flex-direction:column; gap:8px; align-items:center;
+}
+.mobile-mock .social-btn{
+  color:#fff; text-shadow:0 2px 4px rgba(0,0,0,.8);
+  display:flex; flex-direction:column; align-items:center; font-family:var(--mono); font-size:8.5px;
+}
+.mobile-mock .overlay{text-align:center; padding-bottom:12px; z-index:5;}
+.mobile-mock .kinetic-text{
+  font-family:var(--disp); font-weight:800; font-size:13.5px; line-height:1.2;
+  color:#fff; text-shadow:0 2px 10px rgba(0,0,0,1); text-transform:uppercase; letter-spacing:-.01em;
+}
+.mobile-mock .highlight{
+  color:#FFE600; text-shadow:0 0 12px rgba(255,230,0,.6); background:rgba(0,0,0,.5); padding:1px 5px; border-radius:4px;
+}
+.mobile-mock .sound-strip{
+  display:flex; align-items:center; gap:4px; font-family:var(--mono); font-size:8px;
+  color:rgba(255,255,255,.8); z-index:5; margin-top:6px; justify-content:center;
+}
 
 /* modal */
 .modal{position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; background:rgba(4,8,14,.84); backdrop-filter:blur(6px);}
@@ -376,10 +407,28 @@ screenWrap(1, `
       <div class="chartwrap"><canvas id="marketChart"></canvas></div>
     </div>
     <div class="card">
-      <div class="eyebrow" style="margin-bottom:8px;">The ContentOS Paradigm</div>
-      <p style="font-size:13.5px; line-height:1.7; color:var(--text);">
-      Modern social feeds require continuous high-frequency posting. Traditional workflows fragment across ChatGPT (scripts), Midjourney (images), ElevenLabs (audio), and Premiere Pro (editing). Qoneqt ContentOS unifies these disparate services into a singular fault-tolerant pipeline governed by strict timeline contracts and circuit-breaker fallbacks.</p>
-      <div class="chip-row"><span class="pill">Unified Studio Canvas</span><span class="pill">Deterministic Timeline</span></div>
+      <div class="eyebrow" style="margin-bottom:8px;">The ContentOS Paradigm · Before vs After</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+        <div style="background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.3); border-radius:8px; padding:12px;">
+          <div style="font-family:var(--mono); font-size:10px; font-weight:700; color:var(--red); text-transform:uppercase;">🔴 Fragmented Workflow</div>
+          <ul style="padding-left:14px; margin-top:6px; font-size:11.5px; line-height:1.6; color:var(--muted);">
+            <li>4 Isolated Tools (ChatGPT, Midjourney, ElevenLabs, Premiere)</li>
+            <li>3.5 hrs manual editing & timing</li>
+            <li>$60–$80 freelancer cost per short</li>
+            <li>85% crash/stall rate in manual chains</li>
+          </ul>
+        </div>
+        <div style="background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.3); border-radius:8px; padding:12px;">
+          <div style="font-family:var(--mono); font-size:10px; font-weight:700; color:var(--emerald); text-transform:uppercase;">🟢 Qoneqt ContentOS</div>
+          <ul style="padding-left:14px; margin-top:6px; font-size:11.5px; line-height:1.6; color:var(--text);">
+            <li>1 Unified Autonomous Factory</li>
+            <li>&lt; 90 seconds automated turnaround</li>
+            <li>&lt; $0.12 API compute cost</li>
+            <li>Deterministic circuit-breaker safety</li>
+          </ul>
+        </div>
+      </div>
+      <div class="chip-row" style="margin-top:12px;"><span class="pill live">99% Cost Reduction</span><span class="pill cyan">Zero-Tool Fragmentation</span></div>
     </div>
   </div>
 `);
@@ -467,10 +516,22 @@ screenWrap(5, `
     </div>
     <div class="card" style="display:flex; justify-content:center; align-items:center;">
       <div class="mobile-mock">
-        <div class="badge">9:16 PREVIEW</div>
+        <div class="mock-bg"></div>
+        <div class="badge">⚡ 9:16 LIVE PREVIEW</div>
+
+        <div class="social-rail">
+          <div class="social-btn"><span>❤️</span><span>14.8k</span></div>
+          <div class="social-btn"><span>💬</span><span>982</span></div>
+          <div class="social-btn"><span>↗️</span><span>3.4k</span></div>
+        </div>
+
         <div class="overlay">
           <div class="kinetic-text">
             Quantum Computing Will <span class="highlight">CHANGE</span> Everything.
+          </div>
+          <div class="sound-strip">
+            <span>♫</span>
+            <span>Qoneqt Neural Audio • Auto-Ducked</span>
           </div>
         </div>
       </div>
@@ -663,9 +724,17 @@ screenWrap(11, `
       <p style="font-size:13px; color:var(--muted);">Algorithmic feedback loop analyzing Qoneqt viewer retention to automatically fine-tune future video hooks.</p>
     </div>
   </div>
-  <div style="margin-top:34px;">
-    <div style="font-family:var(--disp); font-size:24px; font-weight:700;">Thank you.</div>
-    <div style="color:var(--muted); font-size:13px; margin-top:4px;">Qoneqt ContentOS · Engineering Review</div>
+  <div style="margin-top:28px; display:flex; justify-content:space-between; align-items:flex-end; border-top:1px solid var(--border); padding-top:16px;">
+    <div>
+      <div style="font-family:var(--disp); font-size:24px; font-weight:700;">Thank you.</div>
+      <div style="color:var(--muted); font-size:13px; margin-top:4px;">Qoneqt ContentOS · Autonomous Video Factory</div>
+      <div style="margin-top:8px; font-family:var(--mono); font-size:11px; color:var(--cyan);">Hackbriven National Hackathon (Ahmedabad) • Team Leader: Prachi Zala</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <span class="pill live">Production Ready</span>
+      <span class="pill cyan">Zero-Delay Pipeline</span>
+      <span class="pill">Qoneqt Certified</span>
+    </div>
   </div>
 `);
 
