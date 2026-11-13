@@ -13,15 +13,34 @@ import {
   Loader2,
   Lightbulb,
   Zap,
-  Crown
+  Crown,
+  Flame,
+  Mic,
+  Check,
+  RefreshCw,
+  Video
 } from 'lucide-react';
 import UpgradeModal from '../components/UpgradeModal';
 
-const PROMPT_EXAMPLES = [
-  '5 Mindblowing AI Breakthroughs Happening in 2026',
-  'Why Quantum Computing Will Change Everything Overnight',
-  'The Secret Psychology Behind Viral Short-Form Videos',
-  'How Autonomous AI Agents Are Rewriting Software Architecture'
+const TRENDING_HOOKS = [
+  { category: 'AI 2026', text: '5 Mindblowing AI Breakthroughs in 2026 That Shocked Scientists', emoji: '🤖' },
+  { category: 'Tech War', text: 'Why DeepSeek vs OpenAI Changed the Global AI Race Forever', emoji: '⚡' },
+  { category: 'Psychology', text: 'The Secret Dopamine Psychology Behind Million-View Short Videos', emoji: '🔥' },
+  { category: 'Future Wealth', text: 'How 1-Person AI Companies Are Replacing Entire Agencies Overnight', emoji: '💡' }
+];
+
+const VOICE_PRESETS = [
+  { id: 'rachel', name: 'Rachel', desc: 'High-Energy & Viral', emoji: '⚡' },
+  { id: 'adam', name: 'Adam', desc: 'Deep Documentary Voice', emoji: '🎙️' },
+  { id: 'marcus', name: 'Marcus', desc: 'Tech Authority & Crisp', emoji: '🧠' },
+  { id: 'elena', name: 'Elena', desc: 'Cinematic Storyteller', emoji: '✨' }
+];
+
+const STYLE_PRESETS = [
+  { id: 'Cinematic Volumetric', name: 'Cinematic Volumetric', desc: 'Volumetric raytracing & dynamic lighting', tag: 'Most Popular' },
+  { id: 'Cyberpunk Neon', name: 'Cyberpunk Neon', desc: 'Futuristic glowing neon & synthwave aesthetics', tag: 'High Retention' },
+  { id: 'Photorealistic 3D', name: 'Photorealistic 3D', desc: 'Crisp studio photography & hyper-detail', tag: 'Documentary' },
+  { id: 'Minimalist Modern', name: 'Minimalist Modern', desc: 'Clean vector geometry & bold typography', tag: 'Tech & SaaS' }
 ];
 
 export default function CreateVideoPage() {
@@ -31,6 +50,8 @@ export default function CreateVideoPage() {
   const [duration, setDuration] = useState<number>(30);
   const [tone, setTone] = useState<string>('Viral / Hook Driven');
   const [style, setStyle] = useState<string>('Cinematic Volumetric');
+  const [selectedVoice, setSelectedVoice] = useState<string>('rachel');
+  const [isEnhancing, setIsEnhancing] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,6 +85,37 @@ export default function CreateVideoPage() {
     return () => controller.abort();
   }, []);
 
+  const handleMagicEnhance = () => {
+    setIsEnhancing(true);
+    setTimeout(() => {
+      const current = topic.trim();
+      const map: { [k: string]: string } = {
+        'ai': '5 Mindblowing AI Breakthroughs in 2026 That Will Shock You',
+        'quantum': 'Why Quantum Computing Will Break All Banking Encryption Overnight',
+        'crypto': 'The Unspoken Truth About Crypto in 2026: What Top Traders Never Tell You',
+        'video': 'The Secret Dopamine Psychology Behind 10M+ View Short-Form Videos'
+      };
+
+      let matched = false;
+      for (const key of Object.keys(map)) {
+        if (current.toLowerCase().includes(key)) {
+          setTopic(map[key]);
+          matched = true;
+          break;
+        }
+      }
+
+      if (!matched) {
+        if (current.length > 4) {
+          setTopic(`The Hidden Truth About ${current}: Why 99% of People Get It Completely Wrong`);
+        } else {
+          setTopic('Why Autonomous AI Agents Are Rewriting Software Architecture Overnight');
+        }
+      }
+      setIsEnhancing(false);
+    }, 400);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic.trim()) return;
@@ -88,6 +140,7 @@ export default function CreateVideoPage() {
           language: 'en',
           style: style,
           visualStyle: style,
+          voice: selectedVoice,
         }),
       });
 
@@ -158,101 +211,203 @@ export default function CreateVideoPage() {
 
       {/* Form Container */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Topic Input */}
-        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
-          <label className="block text-sm font-semibold text-slate-200 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <span>Topic / Video Core Concept</span>
-          </label>
-          <textarea
-            rows={3}
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. 5 Mindblowing AI Breakthroughs in 2026..."
-            required
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-sm leading-relaxed"
-          />
+        {/* Topic Input with Magic Prompt AI Enhancer */}
+        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span>Topic / Core Video Concept</span>
+            </label>
 
-          {/* Prompt Examples */}
-          <div className="pt-2">
-            <div className="text-xs text-slate-400 font-medium mb-2 flex items-center gap-1.5">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-              <span>Prompt Ideas (Click to use):</span>
+            <button
+              type="button"
+              onClick={handleMagicEnhance}
+              disabled={isEnhancing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500/20 to-purple-500/20 hover:from-amber-500/30 hover:to-purple-500/30 border border-amber-500/40 text-amber-300 transition-all cursor-pointer shadow-sm hover:scale-[1.02]"
+            >
+              {isEnhancing ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+              ) : (
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              )}
+              <span>{isEnhancing ? 'Synthesizing...' : '✨ Magic Prompt Enhancer'}</span>
+            </button>
+          </div>
+
+          <div className="relative">
+            <textarea
+              rows={3}
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g. 5 Mindblowing AI Breakthroughs in 2026 (or click any trending idea below)..."
+              required
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/80 text-sm leading-relaxed"
+            />
+          </div>
+
+          {/* Trending Hooks & Ideas */}
+          <div className="space-y-2 pt-1">
+            <div className="text-xs text-slate-400 font-medium flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-rose-400" />
+              <span>Trending Viral Hooks (Click to autofill):</span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {PROMPT_EXAMPLES.map((example, idx) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {TRENDING_HOOKS.map((item, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setTopic(example)}
-                  className="text-xs bg-slate-900 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-800 transition-colors text-left"
+                  onClick={() => setTopic(item.text)}
+                  className="text-left p-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700 transition-all flex items-start gap-2.5 group cursor-pointer"
                 >
-                  {example}
+                  <span className="text-base select-none shrink-0 group-hover:scale-110 transition-transform">
+                    {item.emoji}
+                  </span>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block font-bold">
+                      {item.category}
+                    </span>
+                    <p className="text-xs text-slate-300 line-clamp-1 group-hover:text-white transition-colors">
+                      {item.text}
+                    </p>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Duration Selector */}
-          <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
-            <label className="block text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-sky-400" />
-              <span>Duration</span>
+        {/* Neural Voice & Character Selector */}
+        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <Mic className="w-4 h-4 text-indigo-400" />
+              <span>AI Neural Voiceover Model</span>
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {[15, 30, 60].map((dur) => (
+            <span className="text-[11px] font-mono text-slate-400">ElevenLabs & Edge-TTS Engine</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {VOICE_PRESETS.map((v) => {
+              const isSelected = selectedVoice === v.id;
+              return (
                 <button
-                  key={dur}
+                  key={v.id}
                   type="button"
-                  onClick={() => setDuration(dur)}
-                  className={`py-2.5 px-3 rounded-xl font-bold text-xs border transition-all ${
-                    duration === dur
-                      ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20'
-                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200'
+                  onClick={() => setSelectedVoice(v.id)}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-indigo-500/15 border-indigo-500/50 shadow-md ring-1 ring-indigo-500/30'
+                      : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-300'
                   }`}
                 >
-                  {dur}s
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-lg">{v.emoji}</span>
+                    {isSelected && (
+                      <span className="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center text-[10px]">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-slate-200 block">{v.name}</span>
+                    <span className="text-[10px] text-slate-400 line-clamp-1">{v.desc}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Visual Style Cards */}
+        <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+              <Palette className="w-4 h-4 text-emerald-400" />
+              <span>Visual Rendering Aesthetic</span>
+            </label>
+            <span className="text-[11px] font-mono text-slate-400">9:16 Kinetic Visual Engine</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {STYLE_PRESETS.map((s) => {
+              const isSelected = style === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setStyle(s.id)}
+                  className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-emerald-500/15 border-emerald-500/50 shadow-md ring-1 ring-emerald-500/30'
+                      : 'bg-slate-950/80 border-slate-800 hover:border-slate-700 text-slate-300'
+                  }`}
+                >
+                  <div className="flex justify-between items-center mb-1.5">
+                    <span className="text-[9px] font-mono bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-emerald-400 font-bold">
+                      {s.tag}
+                    </span>
+                    {isSelected && (
+                      <span className="w-4 h-4 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center text-[10px] font-bold">
+                        ✓
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-slate-200 block">{s.name}</span>
+                    <span className="text-[10px] text-slate-400 leading-tight mt-0.5 block">{s.desc}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Duration & Pacing Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Duration Selector */}
+          <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-2">
+            <label className="block text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-sky-400" />
+              <span>Target Duration</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { dur: 15, label: '15s', sub: 'Viral Blitz' },
+                { dur: 30, label: '30s', sub: 'Balanced Short' },
+                { dur: 60, label: '60s', sub: 'Deep Explainer' }
+              ].map((item) => (
+                <button
+                  key={item.dur}
+                  type="button"
+                  onClick={() => setDuration(item.dur)}
+                  className={`py-2 px-2 rounded-xl text-center border transition-all cursor-pointer ${
+                    duration === item.dur
+                      ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20'
+                      : 'bg-slate-950/80 text-slate-400 border-slate-800 hover:bg-slate-900 hover:text-slate-200'
+                  }`}
+                >
+                  <span className="font-bold text-xs block">{item.label}</span>
+                  <span className="text-[9px] opacity-80 block">{item.sub}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Tone Selector */}
-          <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
-            <label className="block text-sm font-semibold text-slate-200 flex items-center gap-2">
+          {/* Narrative Tone */}
+          <div className="p-5 rounded-2xl glass-card border border-slate-800 space-y-2">
+            <label className="block text-xs font-semibold text-slate-200 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>Tone / Hook Style</span>
+              <span>Narrative Hook Archetype</span>
             </label>
             <select
               value={tone}
               onChange={(e) => setTone(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 text-sm focus:outline-none focus:border-purple-500"
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 text-xs focus:outline-none focus:border-purple-500"
             >
-              <option value="Viral / Hook Driven">Viral / Hook Driven</option>
-              <option value="Informative & Educational">Informative & Educational</option>
-              <option value="Engaging Storytelling">Engaging Storytelling</option>
-              <option value="Satirical / Humorous">Satirical / Humorous</option>
-            </select>
-          </div>
-
-          {/* Visual Style Selector */}
-          <div className="p-6 rounded-2xl glass-card border border-slate-800 space-y-3">
-            <label className="block text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <Palette className="w-4 h-4 text-emerald-400" />
-              <span>Visual Style</span>
-            </label>
-            <select
-              value={style}
-              onChange={(e) => setStyle(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 text-sm focus:outline-none focus:border-emerald-500"
-            >
-              <option value="Cinematic Volumetric">Cinematic Volumetric</option>
-              <option value="Photorealistic 3D">Photorealistic 3D</option>
-              <option value="Cyberpunk Neon">Cyberpunk Neon</option>
-              <option value="Minimalist Modern">Minimalist Modern</option>
+              <option value="Viral / Hook Driven">⚡ Pattern Interrupt (Viral / High CTR)</option>
+              <option value="Informative & Educational">🧠 Data-Driven & Analytical</option>
+              <option value="Engaging Storytelling">🎬 Cinematic Hero's Journey</option>
+              <option value="Satirical / Humorous">🔥 Satirical / Curiosity Gap</option>
             </select>
           </div>
         </div>
