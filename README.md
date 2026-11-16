@@ -180,3 +180,16 @@ Expected JSON response:
   "environment": "development"
 }
 ```
+
+---
+
+## 🎵 Working with Test Audio & Media Assets
+
+Binary media files (`*.mp3`, `*.mp4`, `*.wav`) are excluded from Git tracking to preserve repository size and hygiene.
+To provide a local test audio file for manual verification:
+1. Place an audio sample in the root directory (e.g., `test_audio.mp3`) or under `storage/temp/`.
+2. Alternatively, generate a 5-second synthetic test tone with FFmpeg:
+   ```bash
+   ffmpeg -f lavfi -i "sine=frequency=1000:duration=5" -c:a libmp3lame test_audio.mp3
+   ```
+
