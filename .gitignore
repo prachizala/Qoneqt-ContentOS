@@ -34,6 +34,11 @@ render_work/
 .env.test.local
 .env.production.local
 
+# Media & Audio assets
+*.mp3
+*.mp4
+*.wav
+
 # OS & IDE metadata
 .DS_Store
 Thumbs.db
