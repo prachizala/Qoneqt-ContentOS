@@ -52,21 +52,21 @@ flowchart TD
         UI["Next.js 14 Dashboard<br/>(Tailwind CSS + TypeScript)"]
     end
 
-    subgraph API ["⚙️ API & Orchestration Layer"]
+    subgraph API ["⚙️ API and Orchestration Layer"]
         FastAPI["FastAPI Gateway<br/>(Python 3.11, Pydantic v2)"]
-        Redis["Redis Message Broker<br/>(Queue & Caching)"]
+        Redis["Redis Message Broker<br/>(Queue and Caching)"]
         Celery["Celery Distributed Workers<br/>(Async Task Engine)"]
     end
 
     subgraph Intelligence ["🧠 Multi-Agent AI Engine"]
-        ScriptAgent["Research & Scriptwriter Agent<br/>(LLM / GPT-4 / Gemini)"]
-        AuditorAgent["Viral Retention Auditor & Hook Optimizer<br/>(0-100 Score & Decay Curves)"]
-        DirectorAgent["Scene Director & Visual Planner"]
+        ScriptAgent["Research and Scriptwriter Agent<br/>(LLM / GPT-4 / Gemini)"]
+        AuditorAgent["Viral Retention Auditor and Hook Optimizer<br/>(0-100 Score and Decay Curves)"]
+        DirectorAgent["Scene Director and Visual Planner"]
         TTS["TTS Audio Engine<br/>(Voice Narration)"]
     end
 
-    subgraph Media ["🎬 Video Production & Storage"]
-        FFmpeg["FFmpeg Video Assembly<br/>(Dynamic Cuts & Subtitle Burn)"]
+    subgraph Media ["🎬 Video Production and Storage"]
+        FFmpeg["FFmpeg Video Assembly<br/>(Dynamic Cuts and Subtitle Burn)"]
         Postgres[("PostgreSQL 15<br/>(SQLAlchemy AsyncPG)")]
         QoneqtAPI["Qoneqt Platform<br/>(Automated Publisher API)"]
     end
